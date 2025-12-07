@@ -1,5 +1,8 @@
 # Rust targets folder
 /target
+/*/.zig-cache/
+/*/zig-out/
+
 
 # Don't upload inputs
-/inputs
+/**/inputs
