@@ -12,22 +12,18 @@ pub fn main() !void {
     while (row_it.next()) |row| {
         const number: i32 = try std.fmt.parseInt(i32, row[1..], 10);
         const isLeft = row[0] == 'L';
-        const overrotation = switch (isLeft) {
-            true => number > current,
-            false => number > (max - current),
-        };
+        var numOverrotations = @divTrunc(number, max);
+        const numberRemaining = @mod(number, max);
+        const distanceToZero = if (isLeft) current else max - current;
 
-        // We default this to 1 because it isn't guaranteed to get added
-        var newPasses: i32 = 0;
-        if (!overrotation) {
-            current = if (isLeft) current - number else current + number;
+        if (numberRemaining > distanceToZero) {
+            numOverrotations += if (current != 0) 1 else 0;
+            current = if (isLeft) max - (numberRemaining - distanceToZero) else numberRemaining - distanceToZero;
         } else {
-            const difference = if (isLeft) number - current else number - (max - current);
-            newPasses = @divTrunc(difference, max) + 1;
-            numPasses += newPasses;
-            const modulo = @rem(difference, max);
-            current = if (isLeft) 100 - modulo else modulo;
+            current = if (isLeft) current - numberRemaining else current + numberRemaining;
         }
+
+        numPasses += numOverrotations;
 
         if (current == 0 or current == 100) {
             counter += 1;
@@ -35,8 +31,8 @@ pub fn main() !void {
         }
 
         std.debug.print("This row is: {s} and current becomes {d} ", .{ row, current });
-        if (overrotation) {
-            std.debug.print("Overrotated! Total passes: {d}", .{newPasses});
+        if (numOverrotations > 0) {
+            std.debug.print("Overrotated! Total passes: {d}", .{numOverrotations});
         }
         std.debug.print("\n", .{});
     }
